@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Heart Beating</title>
+  <style>
+    body { margin: 0; background: black; overflow: hidden; }
+    canvas { display: block; }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.150.1/build/three.min.js"></script>
+</head>
+<body>
+<script>
+  // === Scene setup ===
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  document.body.appendChild(renderer.domElement);
+
+  // === Tạo texture hình trái tim bằng canvas 2D ===
+  const canvas = document.createElement("canvas");
+  canvas.width = 256;
+  canvas.height = 256;
+  const ctx = canvas.getContext("2d");
+
+  ctx.fillStyle = "red";
+  ctx.beginPath();
+  ctx.moveTo(128, 200);
+  ctx.bezierCurveTo(20, 100, 60, 20, 128, 80);
+  ctx.bezierCurveTo(196, 20, 236, 100, 128, 200);
+  ctx.closePath();
+  ctx.fill();
+
+  const texture = new THREE.CanvasTexture(canvas);
+
+  // === Tạo plane để hiển thị trái tim ===
+  const geometry = new THREE.PlaneGeometry(4, 4);
+  const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true });
+  const heart = new THREE.Mesh(geometry, material);
+  scene.add(heart);
+
+  camera.position.z = 8;
+
+  // === Animation: nhịp tim ===
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const scale = 1 + Math.sin(Date.now() * 0.005) * 0.1;
+    heart.scale.set(scale, scale, 1);
+
+    renderer.render(scene, camera);
+  }
+  animate();
+
+  // === Resize ===
+  window.addEventListener("resize", () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+</script>
+</body>
+</html>
